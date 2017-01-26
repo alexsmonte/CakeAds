@@ -85,6 +85,11 @@ class Initial extends AbstractMigration
                 'limit' => 80,
                 'null' => false,
             ])
+            ->addColumn('slug', 'string', [
+                'default' => null,
+                'limit' => 20,
+                'null' => true,
+            ])
             ->addColumn('parent_id', 'string', [
                 'default' => null,
                 'limit' => 45,
