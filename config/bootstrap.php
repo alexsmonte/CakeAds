@@ -12,3 +12,7 @@ if (!Configure::read('CakeAds.path')) {
 if (!Configure::read('CakeAds.keepFilesOnDelete')) {
     Configure::write('CakeAds.keepFilesOnDelete', false);
 }
+
+if (!Configure::read('CakeAds.file')) {
+    Configure::write('CakeAds.file', ROOT. DS . 'config' . DS ."ads.php");
+}
