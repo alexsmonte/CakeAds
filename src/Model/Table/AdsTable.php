@@ -6,6 +6,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Cake\Core\Configure;
+use Cake\Event\Event;
+use Cake\ORM\Entity;
+use Cake\Filesystem\File;
 
 /**
  * Ads Model
@@ -47,7 +50,7 @@ class AdsTable extends Table
                 'fields' => [
                     'dir' => 'path'
                 ],
-                'path' =>  Configure::read('App.webroot').'{DS}'.Configure::read('App.imageBaseUrl').'{DS}'.Configure::read('CakeAds.path'),
+                'path' =>  Configure::read('App.webroot').'{DS}'.Configure::read('App.imageBaseUrl').Configure::read('CakeAds.path'),
                 'keepFilesOnDelete' => Configure::read('CakeAds.keepFilesOnDelete'),
                 'nameCallback' =>  function(array $data, array $settings) {list( $dirname, $basename, $extension, $filename ) = array_values( pathinfo($data["name"]) ); $file   =   preg_replace("[^a-zA-Z0-9_]", "", strtr($filename, "áàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ ", "aaaaeeiooouucAAAAEEIOOOUUC-")); return $file.'.'.$extension; }
             ]
@@ -112,6 +115,47 @@ class AdsTable extends Table
         return $validator;
     }
 
+    public function sumView($id)
+    {
+        $ad =   $this->get($id);
+
+        $data["views"]  =   $ad->views+1;
+
+        $adEntity = $this->patchEntity($ad, $data);
+
+        return $this->save($adEntity);
+    }
+
+    public function generateAds()
+    {
+
+        $ads    =   $this->find("all", ['contain' => ['Categories'], 'conditions' => ['Ads.active' => 1, "SYSDATE() BETWEEN start_date AND end_date"]])->toArray();
+
+        $adsFile    =   [];
+
+        foreach($ads as $ad){
+
+            $banner =   ['id' => $ad->id, 'url' => $ad->url, 'img' => str_replace(Configure::read('App.webroot').'/'.Configure::read('App.imageBaseUrl'), "",$ad->path).$ad->img, 'start' => strtotime($ad->start_date), 'end' => strtotime($ad->end_date)];
+
+            if(!empty($ad->category))
+                $adsFile[$ad->category["slug"]][]   =   $banner;
+            else
+                $adsFile["general"][]  =   $banner;
+        }
+
+        $adsFile    =   "<?php return ".var_export($adsFile,true).";";
+
+        $this->saveFile($adsFile);
+    }
+
+    public function saveFile($adsFile)
+    {
+        $file = new File(Configure::read('CakeAds.file'), false, 0777);
+        $file->open("w+");
+        $file->write($adsFile);
+        return $file->close();
+    }
+
     /**
      * Returns a rules checker object that will be used for validating
      * application integrity.
@@ -124,5 +168,15 @@ class AdsTable extends Table
         $rules->add($rules->existsIn(['category_id'], 'Categories'));
 
         return $rules;
+    }
+
+    public function afterDelete(Event $event, Entity $entity, \ArrayObject $options)
+    {
+        $this->generateAds();
+    }
+
+    public function afterSave(Event $event, Entity $entity, \ArrayObject $options)
+    {
+        $this->generateAds();
     }
 }
