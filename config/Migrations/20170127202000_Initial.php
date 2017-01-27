@@ -37,6 +37,11 @@ class Initial extends AbstractMigration
                 'limit' => null,
                 'null' => true,
             ])
+            ->addColumn('ad_key', 'string', [
+                'default' => null,
+                'limit' => 255,
+                'null' => true,
+            ])
             ->addColumn('active', 'boolean', [
                 'default' => false,
                 'limit' => null,
@@ -90,9 +95,9 @@ class Initial extends AbstractMigration
                 'limit' => 20,
                 'null' => true,
             ])
-            ->addColumn('parent_id', 'string', [
+            ->addColumn('parent_id', 'integer', [
                 'default' => null,
-                'limit' => 45,
+                'limit' => 11,
                 'null' => true,
             ])
             ->addColumn('lft', 'integer', [
