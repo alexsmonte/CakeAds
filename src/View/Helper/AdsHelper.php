@@ -22,7 +22,7 @@ class AdsHelper extends Helper
 
     public $helpers =   ['Html'];
 
-    public function banner($category = 'general',$imageOption=[], $linkOption=[])
+    public function banner($category = 'general', $linkOption=[], $imageOption=[])
     {
         if(!file_exists(Configure::read('CakeAds.file')))
             return false;
@@ -41,6 +41,9 @@ class AdsHelper extends Helper
 
         $adTable->sumView($banner[$randBanner]["id"]);
 
-        return $this->Html->link($this->Html->image($banner[$randBanner]["img"],$imageOption),$banner[$randBanner]["url"],$linkOption);
+        if ($banner[$randBanner]["ad_type"] == "T")
+            return $banner[$randBanner]["img"];
+
+        return $this->Html->link($this->Html->image($banner[$randBanner]["img"], $imageOption), ["controller" => "Ads","action" => "l", "?" =>['k' => $banner[$randBanner]["ad_key"], 'r'=>$banner[$randBanner]["url"]],"plugin" => "CakeAds"],$linkOption);
     }
 }

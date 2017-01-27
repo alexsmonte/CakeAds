@@ -9,6 +9,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\ORM\Entity;
 use Cake\Filesystem\File;
+use Cake\Utility\Security;
 
 /**
  * Ads Model
@@ -126,16 +127,30 @@ class AdsTable extends Table
         return $this->save($adEntity);
     }
 
+
+    public function sumClick($id)
+    {
+        $ad =   $this->get($id);
+
+        $data["clicks"]  =   $ad->clicks+1;
+
+        $adEntity = $this->patchEntity($ad, $data);
+
+        return $this->save($adEntity);
+    }
+
     public function generateAds()
     {
-
         $ads    =   $this->find("all", ['contain' => ['Categories'], 'conditions' => ['Ads.active' => 1, "SYSDATE() BETWEEN start_date AND end_date"]])->toArray();
 
         $adsFile    =   [];
 
         foreach($ads as $ad){
 
-            $banner =   ['id' => $ad->id, 'url' => $ad->url, 'img' => str_replace(Configure::read('App.webroot').'/'.Configure::read('App.imageBaseUrl'), "",$ad->path).$ad->img, 'start' => strtotime($ad->start_date), 'end' => strtotime($ad->end_date)];
+            if($ad->ad_type == 'I')
+                $banner =   ['id' => $ad->id, 'ad_key' => $ad->ad_key, 'ad_type' => $ad->ad_type, 'url' => $ad->url, 'img' => str_replace(Configure::read('App.webroot').'/'.Configure::read('App.imageBaseUrl'), "",$ad->path).$ad->img, 'start' => strtotime($ad->start_date), 'end' => strtotime($ad->end_date)];
+            elseif($ad->ad_type == 'T')
+                $banner =   ['id' => $ad->id, 'ad_key' => $ad->ad_key, 'ad_type' => $ad->ad_type, 'url' => $ad->url, 'img' => $ad->text, 'start' => strtotime($ad->start_date), 'end' => strtotime($ad->end_date)];
 
             if(!empty($ad->category))
                 $adsFile[$ad->category["slug"]][]   =   $banner;
@@ -154,6 +169,13 @@ class AdsTable extends Table
         $file->open("w+");
         $file->write($adsFile);
         return $file->close();
+    }
+
+    public function savekey($id)
+    {
+        $ad    =   $this->get($id);
+        $ad->ad_key    =   Security::hash($id, 'sha256', true);
+        $this->save($ad);
     }
 
     /**
@@ -177,6 +199,10 @@ class AdsTable extends Table
 
     public function afterSave(Event $event, Entity $entity, \ArrayObject $options)
     {
+        if ($entity->isNew()){
+            $this->savekey($entity->id);
+        }
+
         $this->generateAds();
     }
 }
