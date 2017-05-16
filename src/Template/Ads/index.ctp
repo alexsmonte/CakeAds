@@ -8,13 +8,13 @@ $this->Html->addCrumb('Ads', ['controller' => 'Ads','action' => 'index', 'plugin
         <table class="table table-bordered table-hover">
             <thead>
             <tr>
-                <th><?= $this->Paginator->sort('category_id') ?></th>
-                <th><?= $this->Paginator->sort('ad_type') ?></th>
+                <th><?= $this->Paginator->sort('category_id', __('Category')) ?></th>
+                <th><?= $this->Paginator->sort('ad_type',__('Type')) ?></th>
                 <th><?= $this->Paginator->sort('url') ?></th>
-                <th><?= $this->Paginator->sort('img') ?></th>
-                <th><?= $this->Paginator->sort('active') ?></th>
-                <th><?= $this->Paginator->sort('clicks') ?></th>
-                <th><?= $this->Paginator->sort('views') ?></th>
+                <th><?= $this->Paginator->sort('img', __('Image')) ?></th>
+                <th><?= $this->Paginator->sort('active', __('Active')) ?></th>
+                <th><?= $this->Paginator->sort('clicks', __('Clicks')) ?></th>
+                <th><?= $this->Paginator->sort('views', __('Views')) ?></th>
                 <th><?= $this->Paginator->sort('start_date') ?></th>
                 <th><?= $this->Paginator->sort('end_date') ?></th>
                 <th class="actions"><?= __('Actions') ?></th>

@@ -25,7 +25,7 @@ class AdsController extends AppController
         $ads = $this->paginate($this->Ads);
 
 
-        $title  =   "My ads";
+        $title  =   __('My ads');
         $adType =   Configure::read('CakeAds.type');
         $this->set(compact('ads', 'adType','title'));
         $this->set('_serialize', ['ads']);
@@ -44,7 +44,7 @@ class AdsController extends AppController
             'contain' => ['Categories', 'Statistics']
         ]);
 
-        $title  =   "Details";
+        $title  =   __('Details');
         $adType =   Configure::read('CakeAds.type');
         $this->set(compact('ad', 'adType','title'));
         $this->set('_serialize', ['ad']);
@@ -70,7 +70,7 @@ class AdsController extends AppController
             $this->Flash->error(__('The ad could not be saved. Please, try again.'));
         }
 
-        $title  =   "Details";
+        $title  =   __('New ad');
         $adType =   Configure::read('CakeAds.type');
         $categories = $this->Ads->Categories->find('list');
         $this->set(compact('ad', 'categories','adType','title'));
@@ -99,7 +99,7 @@ class AdsController extends AppController
             $this->Flash->error(__('The ad could not be saved. Please, try again.'));
         }
 
-        $title  =   "Details";
+        $title  =  __('Edit ad');
         $adType =   Configure::read('CakeAds.type');
         $categories = $this->Ads->Categories->find('list');
         $this->set(compact('ad', 'categories', 'adType','title'));
